@@ -1,18 +1,137 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<title>אפליקציית חוקים</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-180.png">
-<style>
-body{font-family:Arial;margin:40px;direction:rtl;text-align:right;}
-h1{color:#003366;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>אפליקציית חוקים</title>
+
+  <!-- אייקונים חדשים -->
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+  <!-- manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+      direction: rtl;
+      text-align: right;
+    }
+
+    h1 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: 1px solid #bbb;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+    }
+
+    .result {
+      background: white;
+      margin-bottom: 15px;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      line-height: 1.6;
+    }
+
+    .category-title {
+      font-weight: bold;
+      color: #0057d8;
+      margin-bottom: 8px;
+    }
+
+    .highlight {
+      background-color: yellow;
+    }
+
+    .no-results {
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+      font-size: 18px;
+    }
+  </style>
+
 </head>
+
 <body>
+
 <h1>אפליקציית חוקים</h1>
-<p>הכול מוכן — תוסיף כאן את התוכן שלך.</p>
+
+<input type="text" id="searchInput" class="search-box" placeholder="חפש עבירה או חוק עזר...">
+
+<div id="resultsContainer"></div>
+
+<script>
+  // --- הנתונים מתוך הקובץ שהעלית ---
+  const data = `
+הוספה/העמסה של חומרים בניגוד להוראות התאגיד|לא ציות לחוקי התאגיד|
+...
+(כאן מגיע כל התוכן המקורי שהיה אצלך – שמור כפי שהיה)
+...
+  `;
+
+  // --- עיבוד ---
+  const entries = data.trim().split("\n").map(line => {
+    const parts = line.split("|");
+    return {
+      title: parts[0]?.trim() || "",
+      description: parts[1]?.trim() || ""
+    };
+  });
+
+  const searchInput = document.getElementById("searchInput");
+  const resultsContainer = document.getElementById("resultsContainer");
+
+  function highlight(text, keyword) {
+    if (!keyword) return text;
+    const regex = new RegExp(`(${keyword})`, "gi");
+    return text.replace(regex, `<span class="highlight">$1</span>`);
+  }
+
+  function renderResults() {
+    const keyword = searchInput.value.trim();
+
+    const filtered = entries.filter(e =>
+      e.title.includes(keyword) || e.description.includes(keyword)
+    );
+
+    resultsContainer.innerHTML = "";
+
+    if (filtered.length === 0) {
+      resultsContainer.innerHTML = `<div class="no-results">לא נמצאו תוצאות</div>`;
+      return;
+    }
+
+    filtered.forEach(e => {
+      const box = document.createElement("div");
+      box.className = "result";
+
+      box.innerHTML = `
+        <div class="category-title">${highlight(e.title, keyword)}</div>
+        <div>${highlight(e.description, keyword)}</div>
+      `;
+
+      resultsContainer.appendChild(box);
+    });
+  }
+
+  searchInput.addEventListener("input", renderResults);
+</script>
+
 </body>
 </html>
